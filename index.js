@@ -78,6 +78,14 @@ const drawCells = () => {
   ctx.stroke();
 };
 
+// The grid and its cells must be drawn first, before the first iteration of
+// the `requestAnimationFrame` callback, to prevent the second generation of the board
+// from being drawn first, instead of the first generatino, which is what we want.
 drawGrid();
 drawCells();
+
+// This draws a new iteration of the board per frame as detected by the browser.
+// On high framerate screens it may be better to manually lower it via OS as
+// JS-based solutions tend to lead to desynchronization:
+// https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
 requestAnimationFrame(renderLoop);
