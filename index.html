@@ -19,6 +19,15 @@
   </head>
   <body>
     <canvas id="game-of-life-canvas"></canvas>
+    <button id="play-pause"></button>
+    <div>
+      <input type="number" id="ticks-range" name="ticks"
+             min="1" max="25" value = "1" step = "1">
+      <label for="ticks">Ticks per animation</label>
+    </div>
+    <input id="clear" type="button" value="Clear all cells">
+    <input id="reinit" type="button" value="Reinitialize the board">
+
     <script src='./bootstrap.js'></script>
   </body>
 </html>

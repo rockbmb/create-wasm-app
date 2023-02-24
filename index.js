@@ -22,14 +22,26 @@ canvas.width = (CELL_SIZE + 1) * width + 1;
 
 const ctx = canvas.getContext('2d');
 
+const ticks = document.getElementById("ticks-range");
+
+// Used to keep track of the unique ID of each frame in the animation.
+let animationId = null;
+
+// This function is the same as before, except the
+// result of `requestAnimationFrame` is assigned to
+// `animationId`.
 const renderLoop = () => {
   debugger;
-  universe.tick();
+
+  for (let step = 0; step < ticks.value; step++) {
+    // The universe's ticks are dictated by the input box.
+    universe.tick();
+  }
 
   drawGrid();
   drawCells();
 
-  requestAnimationFrame(renderLoop);
+  animationId = requestAnimationFrame(renderLoop);
 };
 
 const drawGrid = () => {
@@ -88,6 +100,91 @@ const drawCells = () => {
   ctx.stroke();
 };
 
+// Pausing/unpausing
+
+const isPaused = () => {
+  return animationId === null;
+};
+
+const playPauseButton = document.getElementById("play-pause");
+
+const play = () => {
+  playPauseButton.textContent = "⏸";
+  renderLoop();
+};
+
+const pause = () => {
+  playPauseButton.textContent = "▶";
+  cancelAnimationFrame(animationId);
+  animationId = null;
+};
+
+playPauseButton.addEventListener("click", event => {
+  if (isPaused()) {
+    play();
+  } else {
+    pause();
+  }
+});
+
+// Pausing/unpausing end.
+
+// Board clearing/reinitialization
+
+const clearButton = document.getElementById("clear");
+
+clearButton.addEventListener("click", event => {
+  universe.clear_all_cells();
+  drawGrid();
+  drawCells();
+});
+
+const reinitButton = document.getElementById("reinit");
+
+reinitButton.addEventListener("click", event => {
+  universe.reinitialize_rng();
+  drawGrid();
+  drawCells();
+});
+
+// Board clearing/reinitialization end.
+
+// Cell selection
+
+const get_coords = event => {
+  const boundingRect = canvas.getBoundingClientRect();
+
+  const scaleX = canvas.width / boundingRect.width;
+  const scaleY = canvas.height / boundingRect.height;
+
+  const canvasLeft = (event.clientX - boundingRect.left) * scaleX;
+  const canvasTop = (event.clientY - boundingRect.top) * scaleY;
+
+  const row = Math.min(Math.floor(canvasTop / (CELL_SIZE + 1)), height - 1);
+  const col = Math.min(Math.floor(canvasLeft / (CELL_SIZE + 1)), width - 1);
+
+  return {row, col};
+}
+
+const click = event => {
+  let {row, col} = get_coords(event);
+
+  if (event.ctrlKey) {
+    universe.new_glider_at(row, col);
+  } else if (event.shiftKey) {
+    universe.new_pre_pulsar_at(row, col);
+  } else {
+    universe.toggle_cell(row, col);
+  }
+
+  drawGrid();
+  drawCells();
+}
+
+canvas.addEventListener("click", click);
+
+// Cell selection end.
+
 // The grid and its cells must be drawn first, before the first iteration of
 // the `requestAnimationFrame` callback, to prevent the second generation of the board
 // from being drawn first, instead of the first generatino, which is what we want.
@@ -98,4 +195,5 @@ drawCells();
 // On high framerate screens it may be better to manually lower it via OS as
 // JS-based solutions tend to lead to desynchronization:
 // https://stackoverflow.com/questions/19764018/controlling-fps-with-requestanimationframe
-requestAnimationFrame(renderLoop);
+//requestAnimationFrame(renderLoop);
+play();
