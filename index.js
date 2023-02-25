@@ -2,6 +2,8 @@ import { Universe, Cell } from "wasm-game-of-life";
 // Import the WebAssembly memory at the top of the file.
 import { memory } from "wasm-game-of-life/wasm_game_of_life_bg";
 
+import styles from "./styles.css";
+
 const CELL_SIZE = 5; // px
 const GRID_COLOR = "#CCCCCC";
 const DEAD_COLOR = "#FFFFFF";
